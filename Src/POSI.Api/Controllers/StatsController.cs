@@ -30,11 +30,16 @@ public class StatsController : ControllerBase
         if (tenantId is null) return Unauthorized();
 
         var now = DateTime.UtcNow;
+        // Todas las fechas deben ser Kind=Utc para PostgreSQL (timestamptz)
+        var today = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, DateTimeKind.Utc);
+        var monthStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var prevMonthStart = monthStart.AddMonths(-1);
+
         var (start, prevStart, prevEnd) = period switch
         {
-            "today" => (now.Date, now.Date.AddDays(-1), now.Date),
-            "month" => (new DateTime(now.Year, now.Month, 1), new DateTime(now.Year, now.Month, 1).AddMonths(-1), new DateTime(now.Year, now.Month, 1)),
-            _ => (now.Date.AddDays(-6), now.Date.AddDays(-13), now.Date.AddDays(-6)), // week
+            "today" => (today, today.AddDays(-1), today),
+            "month" => (monthStart, prevMonthStart, monthStart),
+            _ => (today.AddDays(-6), today.AddDays(-13), today.AddDays(-6)), // week
         };
 
         var sales = await _db.Sales
@@ -63,7 +68,7 @@ public class StatsController : ControllerBase
             : totalCount > 0 ? 100 : 0;
 
         // Ventas por día (últimos 7 días siempre para la gráfica)
-        var chartStart = now.Date.AddDays(-6);
+        var chartStart = today.AddDays(-6);
         var chartSales = await _db.Sales
             .Where(s => s.TenantId == tenantId.Value && s.Status == "completed" && s.CreatedAt >= chartStart)
             .ToListAsync();
