@@ -207,6 +207,25 @@ public class AuthController : ControllerBase
         return Content(html, "text/html");
     }
 
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub");
+        if (userId is null) return Unauthorized();
+
+        try
+        {
+            await _authService.ChangePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
+            return Ok(new { message = "Contraseña actualizada." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("reset-password")]
     [AllowAnonymous]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
@@ -227,3 +246,4 @@ public record RefreshRequestDto(string RefreshToken);
 public record ResendVerificationRequestDto(string UserId, string Email);
 public record ForgotPasswordRequestDto(string Email);
 public record ResetPasswordRequestDto(string Email, string Token, string NewPassword);
+public record ChangePasswordRequestDto(string CurrentPassword, string NewPassword);

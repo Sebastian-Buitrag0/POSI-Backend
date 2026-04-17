@@ -262,4 +262,17 @@ public class AuthService : IAuthService
         if (!result.Succeeded)
             throw new InvalidOperationException("Token inválido o expirado.");
     }
+
+    public async Task ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new InvalidOperationException("Usuario no encontrado.");
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            var error = result.Errors.FirstOrDefault()?.Description
+                        ?? "Error al cambiar la contraseña.";
+            throw new InvalidOperationException(error);
+        }
+    }
 }

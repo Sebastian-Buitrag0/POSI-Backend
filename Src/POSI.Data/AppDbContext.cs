@@ -22,6 +22,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Sale> Sales => Set<Sale>();
     public DbSet<SaleItem> SaleItems => Set<SaleItem>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<CashRegisterSession> CashRegisterSessions => Set<CashRegisterSession>();
 
     private Guid? CurrentTenantId => _tenantService.GetCurrentTenantId();
 
@@ -125,6 +126,26 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
              .HasForeignKey(si => si.TenantId)
              .OnDelete(DeleteBehavior.Cascade);
             e.HasQueryFilter(si => CurrentTenantId == null || si.TenantId == CurrentTenantId);
+        });
+
+        builder.Entity<CashRegisterSession>(e =>
+        {
+            e.ToTable("cash_register_sessions");
+            e.HasKey(c => c.Id);
+            e.Property(c => c.OpeningCash).HasPrecision(18, 2);
+            e.Property(c => c.ClosingCash).HasPrecision(18, 2);
+            e.Property(c => c.ActualCash).HasPrecision(18, 2);
+            e.Property(c => c.OpenedByUserId).IsRequired().HasMaxLength(450);
+            e.Property(c => c.Status).IsRequired().HasMaxLength(20);
+            e.Property(c => c.Notes).HasMaxLength(500);
+            e.HasOne(c => c.Tenant)
+             .WithMany()
+             .HasForeignKey(c => c.TenantId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(c => c.OpenedBy)
+             .WithMany()
+             .HasForeignKey(c => c.OpenedByUserId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -13,4 +13,5 @@ public interface IAuthService
     Task VerifyEmailAsync(string email, string encodedToken);
     Task<string> GetPasswordResetTokenAsync(string email);
     Task ResetPasswordAsync(string email, string encodedToken, string newPassword);
+    Task ChangePasswordAsync(string userId, string currentPassword, string newPassword);
 }
