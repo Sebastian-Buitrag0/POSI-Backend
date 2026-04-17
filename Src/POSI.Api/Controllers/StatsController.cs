@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using POSI.Data;
 using POSI.Domain.DTOs.Stats;
+using POSI.Domain.Entities;
 using POSI.Domain.Interfaces;
 
 namespace POSI.Api.Controllers;
@@ -88,9 +89,13 @@ public class StatsController : ControllerBase
 
         // Top productos
         var saleIds = sales.Select(s => s.Id).ToList();
-        var items = await _db.SaleItems
-            .Where(si => saleIds.Contains(si.SaleId))
-            .ToListAsync();
+        List<SaleItem> items = [];
+        if (saleIds.Count > 0)
+        {
+            items = await _db.SaleItems
+                .Where(si => saleIds.Contains(si.SaleId))
+                .ToListAsync();
+        }
 
         var topProducts = items
             .GroupBy(si => si.ProductName)
@@ -99,13 +104,17 @@ public class StatsController : ControllerBase
             .Take(5)
             .ToList();
 
-        // Stock bajo
-        var lowStock = await _db.Products
+        // Stock bajo — materializar primero, luego mapear (EF Core no puede
+        // construir records posicionales ni llamar .ToString() en SQL)
+        var lowStockRaw = await _db.Products
             .Where(p => p.TenantId == tenantId.Value && p.IsActive && p.Stock <= p.MinStock)
             .OrderBy(p => p.Stock)
             .Take(10)
-            .Select(p => new LowStockDto(p.Id.ToString(), p.Name, p.Stock, p.MinStock))
             .ToListAsync();
+
+        var lowStock = lowStockRaw
+            .Select(p => new LowStockDto(p.Id.ToString(), p.Name, p.Stock, p.MinStock))
+            .ToList();
 
         return Ok(new StatsDto(
             period,
