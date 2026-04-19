@@ -95,6 +95,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -119,5 +120,6 @@ app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
