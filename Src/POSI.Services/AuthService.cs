@@ -235,6 +235,14 @@ public class AuthService : IAuthService
         return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
     }
 
+    public async Task<string> GetEmailVerificationTokenByEmailAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email)
+            ?? throw new InvalidOperationException("Usuario no encontrado.");
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+    }
+
     public async Task VerifyEmailAsync(string email, string encodedToken)
     {
         var user = await _userManager.FindByEmailAsync(email)

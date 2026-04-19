@@ -137,7 +137,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var token = await _authService.GetEmailVerificationTokenAsync(request.UserId);
+            var token = await _authService.GetEmailVerificationTokenByEmailAsync(request.Email);
             var verifyUrl = $"{_emailSettings.BaseUrl}/api/auth/verify-email?email={Uri.EscapeDataString(request.Email)}&token={token}";
             _ = _emailService.SendVerificationEmailAsync(request.Email, verifyUrl);
             return Ok(new { message = "Email de verificación reenviado." });
