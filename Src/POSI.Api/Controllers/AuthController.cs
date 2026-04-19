@@ -114,19 +114,61 @@ public class AuthController : ControllerBase
         {
             await _authService.VerifyEmailAsync(email, token);
             return Content("""
-                <!DOCTYPE html><html><body style="font-family:sans-serif;text-align:center;padding:60px">
-                <h2 style="color:#22C55E">✓ Correo verificado</h2>
-                <p>Tu cuenta está activa. Puedes cerrar esta ventana y volver a la app.</p>
-                </body></html>
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1">
+                  <title>Correo verificado — POSI</title>
+                  <style>
+                    *{box-sizing:border-box;margin:0;padding:0}
+                    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+                    .card{background:#fff;border-radius:24px;padding:48px 40px;max-width:420px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+                    .icon{width:72px;height:72px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px}
+                    h1{color:#111827;font-size:22px;font-weight:700;margin-bottom:12px}
+                    p{color:#6B7280;font-size:15px;line-height:1.6}
+                    .badge{display:inline-block;margin-top:28px;background:#3B82F6;color:#fff;font-size:13px;font-weight:600;padding:8px 20px;border-radius:999px;letter-spacing:.3px}
+                  </style>
+                </head>
+                <body>
+                  <div class="card">
+                    <div class="icon">✅</div>
+                    <h1>¡Correo verificado!</h1>
+                    <p>Tu cuenta está activa y lista para usar.<br>Vuelve a la app e inicia sesión.</p>
+                    <span class="badge">POSI · Punto de Venta</span>
+                  </div>
+                </body>
+                </html>
                 """, "text/html");
         }
         catch
         {
             return Content("""
-                <!DOCTYPE html><html><body style="font-family:sans-serif;text-align:center;padding:60px">
-                <h2 style="color:#EF4444">✗ Enlace inválido</h2>
-                <p>El enlace expiró o ya fue usado. Solicita un nuevo correo de verificación desde la app.</p>
-                </body></html>
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1">
+                  <title>Enlace inválido — POSI</title>
+                  <style>
+                    *{box-sizing:border-box;margin:0;padding:0}
+                    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8FAFC;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+                    .card{background:#fff;border-radius:24px;padding:48px 40px;max-width:420px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+                    .icon{width:72px;height:72px;background:#FEE2E2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px}
+                    h1{color:#111827;font-size:22px;font-weight:700;margin-bottom:12px}
+                    p{color:#6B7280;font-size:15px;line-height:1.6}
+                    .badge{display:inline-block;margin-top:28px;background:#EF4444;color:#fff;font-size:13px;font-weight:600;padding:8px 20px;border-radius:999px;letter-spacing:.3px}
+                  </style>
+                </head>
+                <body>
+                  <div class="card">
+                    <div class="icon">❌</div>
+                    <h1>Enlace inválido</h1>
+                    <p>El enlace expiró o ya fue usado.<br>Solicita un nuevo correo de verificación desde la app.</p>
+                    <span class="badge">POSI · Punto de Venta</span>
+                  </div>
+                </body>
+                </html>
                 """, "text/html");
         }
     }
