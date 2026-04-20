@@ -13,6 +13,7 @@ public class Product
     public int MinStock { get; set; }
     public Guid? CategoryId { get; set; }
     public bool IsActive { get; set; } = true;
+    public string Unit { get; set; } = "unidad";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

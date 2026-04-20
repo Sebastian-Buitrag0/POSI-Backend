@@ -72,6 +72,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             e.Property(p => p.Name).IsRequired().HasMaxLength(200);
             e.Property(p => p.Price).HasPrecision(18, 2);
             e.Property(p => p.Cost).HasPrecision(18, 2);
+            e.Property(p => p.Unit).IsRequired().HasMaxLength(20).HasDefaultValue("unidad");
             e.HasOne(p => p.Tenant)
              .WithMany(t => t.Products)
              .HasForeignKey(p => p.TenantId)
@@ -120,6 +121,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             e.HasKey(si => si.Id);
             e.Property(si => si.ProductName).IsRequired().HasMaxLength(200);
             e.Property(si => si.UnitPrice).HasPrecision(18, 2);
+            e.Property(si => si.Quantity).HasPrecision(18, 3);
             e.Property(si => si.Subtotal).HasPrecision(18, 2);
             e.HasOne(si => si.Tenant)
              .WithMany()

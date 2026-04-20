@@ -35,7 +35,7 @@ public class ProductsController : ControllerBase
             .Select(p => new ProductDto(
                 p.Id, p.Name, p.Sku, p.Barcode,
                 p.Price, p.Cost, p.Stock, p.MinStock,
-                p.IsActive, p.CreatedAt, p.UpdatedAt))
+                p.IsActive, p.Unit, p.CreatedAt, p.UpdatedAt))
             .ToListAsync();
 
         return Ok(products);
@@ -68,6 +68,7 @@ public class ProductsController : ControllerBase
             Stock = dto.Stock,
             MinStock = dto.MinStock,
             IsActive = dto.IsActive,
+            Unit = dto.Unit,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
@@ -78,7 +79,7 @@ public class ProductsController : ControllerBase
         return StatusCode(201, new ProductDto(
             product.Id, product.Name, product.Sku, product.Barcode,
             product.Price, product.Cost, product.Stock, product.MinStock,
-            product.IsActive, product.CreatedAt, product.UpdatedAt));
+            product.IsActive, product.Unit, product.CreatedAt, product.UpdatedAt));
     }
 
     [HttpPut("{id:guid}")]
@@ -101,6 +102,7 @@ public class ProductsController : ControllerBase
         product.Stock = dto.Stock;
         product.MinStock = dto.MinStock;
         product.IsActive = dto.IsActive;
+        product.Unit = dto.Unit;
         product.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
@@ -108,7 +110,7 @@ public class ProductsController : ControllerBase
         return Ok(new ProductDto(
             product.Id, product.Name, product.Sku, product.Barcode,
             product.Price, product.Cost, product.Stock, product.MinStock,
-            product.IsActive, product.CreatedAt, product.UpdatedAt));
+            product.IsActive, product.Unit, product.CreatedAt, product.UpdatedAt));
     }
 
     [HttpDelete("{id:guid}")]

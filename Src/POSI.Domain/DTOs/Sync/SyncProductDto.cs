@@ -10,6 +10,7 @@ public record SyncProductDto(
     int Stock,
     int MinStock,
     bool IsActive,
+    string Unit,
     DateTime CreatedAt,
     DateTime UpdatedAt
 );

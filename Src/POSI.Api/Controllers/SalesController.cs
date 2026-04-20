@@ -43,7 +43,7 @@ public class SalesController : ControllerBase
             if (item.ProductId is null) continue;
             var product = await _db.Products.FindAsync(item.ProductId.Value);
             if (product is not null)
-                product.Stock += item.Quantity;
+                product.Stock += (int)item.Quantity;
         }
 
         await _db.SaveChangesAsync();

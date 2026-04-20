@@ -3,7 +3,7 @@ namespace POSI.Domain.DTOs.Sync;
 public record SyncSaleItemDto(
     string ProductName,
     decimal UnitPrice,
-    int Quantity,
+    decimal Quantity,
     decimal Subtotal
 );
 

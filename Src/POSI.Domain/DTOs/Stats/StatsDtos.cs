@@ -27,7 +27,7 @@ public record PaymentMethodDto(
 
 public record TopProductDto(
     string Name,
-    int Quantity,
+    decimal Quantity,
     decimal Revenue
 );
 

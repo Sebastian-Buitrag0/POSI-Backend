@@ -10,6 +10,7 @@ public record ProductDto(
     int Stock,
     int MinStock,
     bool IsActive,
+    string Unit,
     DateTime CreatedAt,
     DateTime UpdatedAt
 );
@@ -22,7 +23,8 @@ public record CreateProductDto(
     decimal? Cost,
     int Stock,
     int MinStock,
-    bool IsActive
+    bool IsActive,
+    string Unit = "unidad"
 );
 
 public record UpdateProductDto(
@@ -33,5 +35,6 @@ public record UpdateProductDto(
     decimal? Cost,
     int Stock,
     int MinStock,
-    bool IsActive
+    bool IsActive,
+    string Unit = "unidad"
 );

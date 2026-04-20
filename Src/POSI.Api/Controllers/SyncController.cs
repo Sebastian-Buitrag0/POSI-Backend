@@ -62,6 +62,7 @@ public class SyncController : ControllerBase
                     Stock = dto.Stock,
                     MinStock = dto.MinStock,
                     IsActive = dto.IsActive,
+                    Unit = dto.Unit,
                     CreatedAt = dto.CreatedAt.ToUniversalTime(),
                     UpdatedAt = dto.UpdatedAt.ToUniversalTime(),
                 };
@@ -75,6 +76,7 @@ public class SyncController : ControllerBase
                 existing.Stock = dto.Stock;
                 existing.Cost = dto.Cost;
                 existing.IsActive = dto.IsActive;
+                existing.Unit = dto.Unit;
                 existing.UpdatedAt = dto.UpdatedAt.ToUniversalTime();
                 await _db.SaveChangesAsync();
                 mappings.Add(new(dto.LocalId, existing.Id.ToString()));
