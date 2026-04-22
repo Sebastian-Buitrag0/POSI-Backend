@@ -23,6 +23,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<SaleItem> SaleItems => Set<SaleItem>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<CashRegisterSession> CashRegisterSessions => Set<CashRegisterSession>();
+    public DbSet<Table> Tables => Set<Table>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     private Guid? CurrentTenantId => _tenantService.GetCurrentTenantId();
 
@@ -146,6 +149,43 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
              .WithMany()
              .HasForeignKey(c => c.OpenedByUserId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Table>(e =>
+        {
+            e.ToTable("tables");
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            e.Property(t => t.Status).IsRequired().HasMaxLength(20);
+            e.HasOne(t => t.Tenant).WithMany(tn => tn.Tables).HasForeignKey(t => t.TenantId).OnDelete(DeleteBehavior.Cascade);
+            e.HasQueryFilter(t => CurrentTenantId == null || t.TenantId == CurrentTenantId);
+        });
+
+        builder.Entity<Order>(e =>
+        {
+            e.ToTable("orders");
+            e.HasKey(o => o.Id);
+            e.Property(o => o.OrderNumber).IsRequired().HasMaxLength(50);
+            e.Property(o => o.Status).IsRequired().HasMaxLength(20);
+            e.HasOne(o => o.Tenant).WithMany(tn => tn.Orders).HasForeignKey(o => o.TenantId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(o => o.Table).WithMany(t => t.Orders).HasForeignKey(o => o.TableId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(o => o.Waiter).WithMany().HasForeignKey(o => o.WaiterId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(o => o.Sale).WithMany().HasForeignKey(o => o.SaleId).OnDelete(DeleteBehavior.SetNull);
+            e.HasMany(o => o.Items).WithOne(i => i.Order).HasForeignKey(i => i.OrderId).OnDelete(DeleteBehavior.Cascade);
+            e.HasQueryFilter(o => CurrentTenantId == null || o.TenantId == CurrentTenantId);
+        });
+
+        builder.Entity<OrderItem>(e =>
+        {
+            e.ToTable("order_items");
+            e.HasKey(i => i.Id);
+            e.Property(i => i.ProductName).IsRequired().HasMaxLength(200);
+            e.Property(i => i.UnitPrice).HasPrecision(18, 2);
+            e.Property(i => i.Subtotal).HasPrecision(18, 2);
+            e.Property(i => i.Status).IsRequired().HasMaxLength(20);
+            e.HasOne(i => i.Tenant).WithMany().HasForeignKey(i => i.TenantId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(i => i.Product).WithMany().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.Restrict);
+            e.HasQueryFilter(i => CurrentTenantId == null || i.TenantId == CurrentTenantId);
         });
     }
 }

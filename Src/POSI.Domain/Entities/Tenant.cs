@@ -13,4 +13,6 @@ public class Tenant
     public ICollection<Product> Products { get; set; } = [];
     public ICollection<Category> Categories { get; set; } = [];
     public ICollection<Sale> Sales { get; set; } = [];
+    public ICollection<Table> Tables { get; set; } = [];
+    public ICollection<Order> Orders { get; set; } = [];
 }
