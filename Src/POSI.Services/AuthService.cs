@@ -78,13 +78,24 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email)
-            ?? throw new InvalidCredentialsException();
+        ApplicationUser? user;
+        if (request.Identifier.Contains('@'))
+        {
+            user = await _userManager.FindByEmailAsync(request.Identifier);
+        }
+        else
+        {
+            user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Cedula == request.Identifier);
+        }
+
+        if (user is null)
+            throw new InvalidCredentialsException();
 
         if (!await _userManager.CheckPasswordAsync(user, request.Password))
             throw new InvalidCredentialsException();
 
-        if (!user.EmailConfirmed)
+        if (!user.EmailConfirmed && !user.Email!.EndsWith("@local.posi"))
             throw new EmailNotVerifiedException();
 
         var roles = await _userManager.GetRolesAsync(user);

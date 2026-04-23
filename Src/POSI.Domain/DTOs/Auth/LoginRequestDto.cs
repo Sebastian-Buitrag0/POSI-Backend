@@ -1,3 +1,3 @@
 namespace POSI.Domain.DTOs.Auth;
 
-public record LoginRequestDto(string Email, string Password);
+public record LoginRequestDto(string Identifier, string Password);

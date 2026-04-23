@@ -89,7 +89,7 @@ public class UsersController : ControllerBase
             return Conflict(new { message = "Este correo ya está registrado." });
 
         // Validate role
-        var validRoles = new[] { "Admin", "Manager", "Cashier" };
+        var validRoles = new[] { "Admin", "Manager", "Cashier", "Mesero" };
         if (!validRoles.Contains(dto.Role))
             return BadRequest(new { message = "Rol inválido. Debe ser Admin, Manager o Cashier." });
 
@@ -130,6 +130,70 @@ public class UsersController : ControllerBase
             roles.FirstOrDefault() ?? dto.Role, user.CreatedAt));
     }
 
+    // POST /api/users/create-local
+    [HttpPost("create-local")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateLocal([FromBody] CreateLocalUserDto dto)
+    {
+        var tenantId = _tenantService.GetCurrentTenantId();
+        if (tenantId is null) return Unauthorized();
+
+        // Check plan limit
+        var tenant = await _db.Tenants.FindAsync(tenantId.Value);
+        if (tenant is not null)
+        {
+            var userCount = await _db.Users.CountAsync(u => u.TenantId == tenantId.Value);
+            if (!PlanLimits.IsWithinUserLimit(tenant.Plan, userCount))
+                return StatusCode(402, new { message = "Has alcanzado el límite de usuarios de tu plan." });
+        }
+
+        // Validate role
+        var validRoles = new[] { "Admin", "Manager", "Cashier", "Mesero" };
+        if (!validRoles.Contains(dto.Role))
+            return BadRequest(new { message = "Rol inválido. Debe ser Admin, Manager o Cashier." });
+
+        // Check duplicate cedula in tenant
+        if (await _db.Users.AnyAsync(u => u.Cedula == dto.Cedula && u.TenantId == tenantId.Value))
+            return Conflict(new { message = "Esta cédula ya está registrada en este negocio." });
+
+        var user = new ApplicationUser
+        {
+            UserName = dto.Cedula,
+            Email = $"{dto.Cedula}@local.posi",
+            Cedula = dto.Cedula,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            TenantId = tenantId.Value,
+            EmailConfirmed = true,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        var result = await _userManager.CreateAsync(user);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return BadRequest(new { message = errors });
+        }
+
+        var passwordResult = await _userManager.AddPasswordAsync(user, dto.Password);
+        if (!passwordResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            var errors = string.Join(", ", passwordResult.Errors.Select(e => e.Description));
+            return BadRequest(new { message = errors });
+        }
+
+        // Ensure role exists and assign
+        if (!await _roleManager.RoleExistsAsync(dto.Role))
+            await _roleManager.CreateAsync(new IdentityRole(dto.Role));
+        await _userManager.AddToRoleAsync(user, dto.Role);
+
+        var roles = await _userManager.GetRolesAsync(user);
+        return StatusCode(201, new TenantUserDto(
+            user.Id, user.Email!, user.FirstName, user.LastName,
+            roles.FirstOrDefault() ?? dto.Role, user.CreatedAt));
+    }
+
     // PUT /api/users/{id}/role
     [HttpPut("{id}/role")]
     [Authorize(Roles = "Admin")]
@@ -142,7 +206,7 @@ public class UsersController : ControllerBase
             .FirstOrDefaultAsync(u => u.Id == id && u.TenantId == tenantId.Value);
         if (user is null) return NotFound();
 
-        var validRoles = new[] { "Admin", "Manager", "Cashier" };
+        var validRoles = new[] { "Admin", "Manager", "Cashier", "Mesero" };
         if (!validRoles.Contains(dto.Role))
             return BadRequest(new { message = "Rol inválido." });
 
