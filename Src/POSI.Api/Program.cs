@@ -94,6 +94,12 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGastrobarService, GastrobarService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICashRegisterService, CashRegisterService>();
+builder.Services.AddScoped<ISalesService, SalesService>();
+builder.Services.AddScoped<IStatsService, StatsService>();
+builder.Services.AddScoped<ISyncService, SyncService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);

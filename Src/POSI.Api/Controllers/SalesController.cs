@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using POSI.Data;
 using POSI.Domain.Interfaces;
 
 namespace POSI.Api.Controllers;
@@ -11,42 +9,25 @@ namespace POSI.Api.Controllers;
 [Route("api/sales")]
 public class SalesController : ControllerBase
 {
-    private readonly AppDbContext _db;
-    private readonly ITenantService _tenantService;
+    private readonly ISalesService _salesService;
 
-    public SalesController(AppDbContext db, ITenantService tenantService)
+    public SalesController(ISalesService salesService)
     {
-        _db = db;
-        _tenantService = tenantService;
+        _salesService = salesService ?? throw new ArgumentNullException(nameof(salesService));
     }
 
-    // POST /api/sales/{id}/void
     [HttpPost("{id:guid}/void")]
     public async Task<IActionResult> VoidSale(Guid id)
     {
-        var tenantId = _tenantService.GetCurrentTenantId();
-        if (tenantId is null) return Unauthorized();
-
-        var sale = await _db.Sales
-            .Include(s => s.Items)
-            .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId.Value);
-
-        if (sale is null) return NotFound(new { message = "Venta no encontrada." });
-        if (sale.Status != "completed")
-            return BadRequest(new { message = "Solo se pueden anular ventas completadas." });
-
-        sale.Status = "voided";
-
-        // Restore product stock for each item with a known product
-        foreach (var item in sale.Items)
+        try
         {
-            if (item.ProductId is null) continue;
-            var product = await _db.Products.FindAsync(item.ProductId.Value);
-            if (product is not null)
-                product.Stock += item.Quantity;
+            var result = await _salesService.VoidAsync(id);
+            if (!result) return NotFound(new { message = "Venta no encontrada." });
+            return NoContent();
         }
-
-        await _db.SaveChangesAsync();
-        return NoContent();
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

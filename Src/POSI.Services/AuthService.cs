@@ -192,7 +192,7 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private async Task<RefreshToken> CreateRefreshTokenAsync(string userId)
+    private Task<RefreshToken> CreateRefreshTokenAsync(string userId)
     {
         var token = new RefreshToken
         {
@@ -204,7 +204,7 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.UtcNow,
         };
         _db.RefreshTokens.Add(token);
-        return token;
+        return Task.FromResult(token);
     }
 
     private static UserDto MapUserDto(ApplicationUser user, string role) => new(

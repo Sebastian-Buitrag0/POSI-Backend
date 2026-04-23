@@ -19,9 +19,9 @@ public class AuthController : ControllerBase
 
     public AuthController(IAuthService authService, IEmailService emailService, IOptions<EmailSettings> emailSettings)
     {
-        _authService = authService;
-        _emailService = emailService;
-        _emailSettings = emailSettings.Value;
+        _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _emailSettings = (emailSettings ?? throw new ArgumentNullException(nameof(emailSettings))).Value;
     }
 
     [HttpPost("register")]
@@ -241,9 +241,3 @@ public class AuthController : ControllerBase
         }
     }
 }
-
-public record RefreshRequestDto(string RefreshToken);
-public record ResendVerificationRequestDto(string UserId, string Email);
-public record ForgotPasswordRequestDto(string Email);
-public record ResetPasswordRequestDto(string Email, string Token, string NewPassword);
-public record ChangePasswordRequestDto(string CurrentPassword, string NewPassword);

@@ -1,5 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace POSI.Domain.DTOs.Gastrobar;
 
+/// <summary>
+/// Orden de cliente en el gastrobar.
+/// </summary>
 public record OrderDto(
     Guid Id,
     string OrderNumber,
@@ -12,6 +17,9 @@ public record OrderDto(
     decimal Total
 );
 
+/// <summary>
+/// Item de línea individual dentro de una orden.
+/// </summary>
 public record OrderItemDto(
     Guid Id,
     Guid ProductId,
@@ -23,7 +31,41 @@ public record OrderItemDto(
     string? Notes
 );
 
-public record AddOrderItemsDto(List<NewOrderItemDto> Items);
-public record NewOrderItemDto(Guid ProductId, int Quantity, string? Notes);
-public record UpdateOrderItemStatusDto(string Status);
-public record CloseOrderDto(string PaymentMethod, string? Notes);
+/// <summary>
+/// Solicitud para agregar items a una orden.
+/// </summary>
+public record AddOrderItemsDto(
+    [property: Required(ErrorMessage = "La lista de items es obligatoria.")]
+    List<NewOrderItemDto> Items
+);
+
+/// <summary>
+/// Nuevo item para agregar a una orden.
+/// </summary>
+public record NewOrderItemDto(
+    [property: Required]
+    Guid ProductId,
+
+    [property: Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 1.")]
+    int Quantity,
+
+    string? Notes
+);
+
+/// <summary>
+/// Solicitud para actualizar el estado de un item de orden.
+/// </summary>
+public record UpdateOrderItemStatusDto(
+    [property: Required(ErrorMessage = "El estado es obligatorio.")]
+    string Status
+);
+
+/// <summary>
+/// Solicitud para cerrar una orden.
+/// </summary>
+public record CloseOrderDto(
+    [property: Required(ErrorMessage = "El método de pago es obligatorio.")]
+    string PaymentMethod,
+
+    string? Notes
+);

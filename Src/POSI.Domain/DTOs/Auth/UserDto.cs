@@ -1,5 +1,8 @@
 namespace POSI.Domain.DTOs.Auth;
 
+/// <summary>
+/// Datos del usuario devueltos en respuestas de autenticación.
+/// </summary>
 public record UserDto(
     string Id,
     string Email,
