@@ -142,6 +142,22 @@ using (var scope = app.Services.CreateScope())
         if (!await roleManager.RoleExistsAsync("SuperAdmin"))
             await roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
 
+        // El FK users.TenantId → tenants.Id requiere un tenant válido.
+        // Usamos un tenant sistema de ID fijo para todos los superadmins.
+        var systemTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        if (await db.Tenants.FindAsync(systemTenantId) is null)
+        {
+            db.Tenants.Add(new POSI.Domain.Entities.Tenant
+            {
+                Id = systemTenantId,
+                Name = "_system",
+                Slug = "_system",
+                Plan = "enterprise",
+                IsActive = false,
+            });
+            await db.SaveChangesAsync();
+        }
+
         var existing = await userManager.FindByEmailAsync(superAdminEmail);
         if (existing == null)
         {
@@ -152,6 +168,7 @@ using (var scope = app.Services.CreateScope())
                 EmailConfirmed = true,
                 FirstName = "Super",
                 LastName = "Admin",
+                TenantId = systemTenantId,
             };
             var result = await userManager.CreateAsync(superAdmin, superAdminPassword);
             if (result.Succeeded)
