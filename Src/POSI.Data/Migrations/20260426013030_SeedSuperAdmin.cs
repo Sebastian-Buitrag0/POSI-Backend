@@ -19,7 +19,7 @@ namespace POSI.Data.Migrations
                 SELECT u.""Id"", r.""Id""
                 FROM users u
                 CROSS JOIN roles r
-                WHERE u.""Email"" = 'sonysebastian2002@gmail.com'
+                WHERE u.""Email"" = 'sebastian.buitragoayala@gmail.com'
                   AND r.""Name"" = 'SuperAdmin'
                   AND NOT EXISTS (
                       SELECT 1 FROM user_roles ur
@@ -32,7 +32,7 @@ namespace POSI.Data.Migrations
         {
             migrationBuilder.Sql(@"
                 DELETE FROM user_roles
-                WHERE ""UserId"" = (SELECT ""Id"" FROM users WHERE ""Email"" = 'sonysebastian2002@gmail.com')
+                WHERE ""UserId"" = (SELECT ""Id"" FROM users WHERE ""Email"" = 'sebastian.buitragoayala@gmail.com')
                   AND ""RoleId"" = (SELECT ""Id"" FROM roles WHERE ""Name"" = 'SuperAdmin');
             ");
         }

@@ -5,7 +5,7 @@ using POSI.Domain.Interfaces;
 namespace POSI.Api.Controllers;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Manager")]
 [Route("api/stats")]
 public class StatsController : ControllerBase
 {
