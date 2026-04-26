@@ -129,6 +129,39 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+
+    // Seed superadmin user desde variables de entorno
+    var superAdminEmail = Environment.GetEnvironmentVariable("SUPERADMIN_EMAIL");
+    var superAdminPassword = Environment.GetEnvironmentVariable("SUPERADMIN_PASSWORD");
+
+    if (!string.IsNullOrWhiteSpace(superAdminEmail) && !string.IsNullOrWhiteSpace(superAdminPassword))
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        if (!await roleManager.RoleExistsAsync("SuperAdmin"))
+            await roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
+
+        var existing = await userManager.FindByEmailAsync(superAdminEmail);
+        if (existing == null)
+        {
+            var superAdmin = new ApplicationUser
+            {
+                UserName = superAdminEmail,
+                Email = superAdminEmail,
+                EmailConfirmed = true,
+                FirstName = "Super",
+                LastName = "Admin",
+            };
+            var result = await userManager.CreateAsync(superAdmin, superAdminPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(superAdmin, "SuperAdmin");
+        }
+        else if (!await userManager.IsInRoleAsync(existing, "SuperAdmin"))
+        {
+            await userManager.AddToRoleAsync(existing, "SuperAdmin");
+        }
+    }
 }
 
 if (app.Environment.IsDevelopment())
