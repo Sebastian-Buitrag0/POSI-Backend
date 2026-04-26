@@ -5,6 +5,6 @@ namespace POSI.Domain.Constants;
 /// </summary>
 public static class SaleStatuses
 {
-    public const string Completed = "Completada";
-    public const string Voided = "Anulada";
+    public const string Completed = "completed";
+    public const string Voided = "voided";
 }
