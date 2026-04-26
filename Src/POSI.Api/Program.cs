@@ -100,9 +100,24 @@ builder.Services.AddScoped<ISalesService, SalesService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<ISyncService, SyncService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISuperAdminService, SuperAdminService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
+
+var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+    ?? new[] { "http://localhost:5173", "http://localhost:4173" };
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAdminPanel", policy =>
+    {
+        policy.WithOrigins(corsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -124,6 +139,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
 });
 app.UseSerilogRequestLogging();
+app.UseCors("AllowAdminPanel");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
