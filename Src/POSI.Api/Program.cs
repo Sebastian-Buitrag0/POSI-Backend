@@ -105,8 +105,11 @@ builder.Services.AddScoped<ISuperAdminService, SuperAdminService>();
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
 
-var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
-    ?? new[] { "http://localhost:5173", "http://localhost:4173" };
+var corsEnv = Environment.GetEnvironmentVariable("CORS_ORIGINS");
+var corsOrigins = corsEnv != null
+    ? corsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    : builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+      ?? new[] { "http://localhost:5173", "http://localhost:4173" };
 
 builder.Services.AddCors(options =>
 {
