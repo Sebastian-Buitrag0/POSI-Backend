@@ -134,16 +134,23 @@ using (var scope = app.Services.CreateScope())
     var superAdminEmail = Environment.GetEnvironmentVariable("SUPERADMIN_EMAIL");
     var superAdminPassword = Environment.GetEnvironmentVariable("SUPERADMIN_PASSWORD");
 
-    if (!string.IsNullOrWhiteSpace(superAdminEmail) && !string.IsNullOrWhiteSpace(superAdminPassword))
+    if (string.IsNullOrWhiteSpace(superAdminEmail) || string.IsNullOrWhiteSpace(superAdminPassword))
     {
+        Log.Warning("SUPERADMIN_EMAIL o SUPERADMIN_PASSWORD no están configuradas — se omite el seed de superadmin");
+    }
+    else
+    {
+        Log.Information("Iniciando seed de superadmin para {Email}", superAdminEmail);
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
         if (!await roleManager.RoleExistsAsync("SuperAdmin"))
+        {
             await roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
+            Log.Information("Rol SuperAdmin creado");
+        }
 
         // El FK users.TenantId → tenants.Id requiere un tenant válido.
-        // Usamos un tenant sistema de ID fijo para todos los superadmins.
         var systemTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         if (await db.Tenants.FindAsync(systemTenantId) is null)
         {
@@ -156,6 +163,7 @@ using (var scope = app.Services.CreateScope())
                 IsActive = false,
             });
             await db.SaveChangesAsync();
+            Log.Information("Tenant sistema creado");
         }
 
         var existing = await userManager.FindByEmailAsync(superAdminEmail);
@@ -172,11 +180,30 @@ using (var scope = app.Services.CreateScope())
             };
             var result = await userManager.CreateAsync(superAdmin, superAdminPassword);
             if (result.Succeeded)
+            {
                 await userManager.AddToRoleAsync(superAdmin, "SuperAdmin");
+                Log.Information("Superadmin creado y rol asignado");
+            }
+            else
+            {
+                Log.Error("Error creando superadmin: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
         }
-        else if (!await userManager.IsInRoleAsync(existing, "SuperAdmin"))
+        else
         {
-            await userManager.AddToRoleAsync(existing, "SuperAdmin");
+            // Resetear contraseña para que coincida con la variable de entorno
+            var token = await userManager.GeneratePasswordResetTokenAsync(existing);
+            await userManager.ResetPasswordAsync(existing, token, superAdminPassword);
+
+            if (!await userManager.IsInRoleAsync(existing, "SuperAdmin"))
+            {
+                await userManager.AddToRoleAsync(existing, "SuperAdmin");
+                Log.Information("Rol SuperAdmin asignado al usuario existente {Email}", superAdminEmail);
+            }
+            else
+            {
+                Log.Information("Usuario {Email} ya tiene rol SuperAdmin", superAdminEmail);
+            }
         }
     }
 }
