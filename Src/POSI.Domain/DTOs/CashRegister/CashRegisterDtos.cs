@@ -6,7 +6,7 @@ namespace POSI.Domain.DTOs.CashRegister;
 /// Solicitud para abrir una sesión de caja registradora.
 /// </summary>
 public record OpenCashRegisterDto(
-    [property: Range(0, double.MaxValue, ErrorMessage = "El efectivo de apertura no puede ser negativo.")]
+    [Range(0, double.MaxValue, ErrorMessage = "El efectivo de apertura no puede ser negativo.")]
     decimal OpeningCash,
     string? Notes
 );
@@ -15,7 +15,7 @@ public record OpenCashRegisterDto(
 /// Solicitud para cerrar una sesión de caja registradora.
 /// </summary>
 public record CloseCashRegisterDto(
-    [property: Range(0, double.MaxValue, ErrorMessage = "El efectivo real no puede ser negativo.")]
+    [Range(0, double.MaxValue, ErrorMessage = "El efectivo real no puede ser negativo.")]
     decimal ActualCash,
     string? Notes
 );

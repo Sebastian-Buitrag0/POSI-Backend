@@ -6,9 +6,9 @@ namespace POSI.Domain.DTOs.Auth;
 /// Solicitud de inicio de sesión de usuario.
 /// </summary>
 public record LoginRequestDto(
-    [property: Required(ErrorMessage = "El identificador es obligatorio.")]
+    [Required(ErrorMessage = "El identificador es obligatorio.")]
     string Identifier,
 
-    [property: Required(ErrorMessage = "La contraseña es obligatoria.")]
+    [Required(ErrorMessage = "La contraseña es obligatoria.")]
     string Password
 );

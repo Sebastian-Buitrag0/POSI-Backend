@@ -6,7 +6,7 @@ namespace POSI.Domain.DTOs.Auth;
 /// Solicitud de contraseña olvidada.
 /// </summary>
 public record ForgotPasswordRequestDto(
-    [property: Required(ErrorMessage = "El correo es obligatorio.")]
-    [property: EmailAddress(ErrorMessage = "El correo no tiene un formato válido.")]
+    [Required(ErrorMessage = "El correo es obligatorio.")]
+    [EmailAddress(ErrorMessage = "El correo no tiene un formato válido.")]
     string Email
 );

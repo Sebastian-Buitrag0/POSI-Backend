@@ -35,7 +35,7 @@ public record OrderItemDto(
 /// Solicitud para agregar items a una orden.
 /// </summary>
 public record AddOrderItemsDto(
-    [property: Required(ErrorMessage = "La lista de items es obligatoria.")]
+    [Required(ErrorMessage = "La lista de items es obligatoria.")]
     List<NewOrderItemDto> Items
 );
 
@@ -43,10 +43,10 @@ public record AddOrderItemsDto(
 /// Nuevo item para agregar a una orden.
 /// </summary>
 public record NewOrderItemDto(
-    [property: Required]
+    [Required]
     Guid ProductId,
 
-    [property: Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 1.")]
+    [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 1.")]
     int Quantity,
 
     string? Notes
@@ -56,7 +56,7 @@ public record NewOrderItemDto(
 /// Solicitud para actualizar el estado de un item de orden.
 /// </summary>
 public record UpdateOrderItemStatusDto(
-    [property: Required(ErrorMessage = "El estado es obligatorio.")]
+    [Required(ErrorMessage = "El estado es obligatorio.")]
     string Status
 );
 
@@ -64,7 +64,7 @@ public record UpdateOrderItemStatusDto(
 /// Solicitud para cerrar una orden.
 /// </summary>
 public record CloseOrderDto(
-    [property: Required(ErrorMessage = "El método de pago es obligatorio.")]
+    [Required(ErrorMessage = "El método de pago es obligatorio.")]
     string PaymentMethod,
 
     string? Notes

@@ -18,11 +18,11 @@ public record TableDto(
 /// Solicitud para crear una nueva mesa.
 /// </summary>
 public record CreateTableDto(
-    [property: Required(ErrorMessage = "El nombre de la mesa es obligatorio.")]
-    [property: MaxLength(100, ErrorMessage = "El nombre no puede exceder 100 caracteres.")]
+    [Required(ErrorMessage = "El nombre de la mesa es obligatorio.")]
+    [MaxLength(100, ErrorMessage = "El nombre no puede exceder 100 caracteres.")]
     string Name,
 
-    [property: Range(1, int.MaxValue, ErrorMessage = "La capacidad debe ser al menos 1.")]
+    [Range(1, int.MaxValue, ErrorMessage = "La capacidad debe ser al menos 1.")]
     int Capacity
 );
 
@@ -30,6 +30,6 @@ public record CreateTableDto(
 /// Solicitud para actualizar el estado de una mesa.
 /// </summary>
 public record UpdateTableStatusDto(
-    [property: Required(ErrorMessage = "El estado es obligatorio.")]
+    [Required(ErrorMessage = "El estado es obligatorio.")]
     string Status
 );

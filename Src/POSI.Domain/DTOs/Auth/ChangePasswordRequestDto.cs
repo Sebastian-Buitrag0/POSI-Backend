@@ -6,10 +6,10 @@ namespace POSI.Domain.DTOs.Auth;
 /// Solicitud de cambio de contraseña.
 /// </summary>
 public record ChangePasswordRequestDto(
-    [property: Required(ErrorMessage = "La contraseña actual es obligatoria.")]
+    [Required(ErrorMessage = "La contraseña actual es obligatoria.")]
     string CurrentPassword,
 
-    [property: Required(ErrorMessage = "La nueva contraseña es obligatoria.")]
-    [property: MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
+    [Required(ErrorMessage = "La nueva contraseña es obligatoria.")]
+    [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
     string NewPassword
 );
